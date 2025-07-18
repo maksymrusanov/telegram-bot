@@ -12,7 +12,7 @@ driver = webdriver.Firefox()
 
 def find_offers():
     driver.get('https://www.spareroom.co.uk/')
-
+    cookies()
     try:
         search = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.NAME, 'search'))
@@ -33,13 +33,22 @@ def find_offers():
         print(' Error with price input')
         driver.quit()
         return
-
     try:
-        apply_button = driver.find_element(
-            By.CSS_SELECTOR, '#searchFilters > div > div > div > button')
-        time.sleep(2)
+        bills = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.NAME, "bills_inc")))
+        if not bills.is_selected:
+            bills.click()
+    except:
+        print('error with bills')
+    try:
+        apply_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(
+            (By.XPATH, '//*[@id="searchFilters"]/div/div/div/button')))
         apply_button.click()
-        is_running = True
+        ready_or_not = input('ready?: ')
+        if ready_or_not.lower() == 'y':
+            is_running = True
+        else:
+            driver.quit()
         while is_running:
             nextpage = input('next page?: ')
             if nextpage.lower() == 'y':
@@ -57,10 +66,20 @@ def find_offers():
         driver.quit()
 
 
+def cookies():
+    try:
+        cookie_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//button[contains(., 'Accept')]"))
+        )
+        cookie_button.click()
+    except TimeoutException:
+        print("Cookie consent not found or already accepted.")
+
+
 def next_page():
     nextpage_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, '#paginationNextPageLink')))
+        EC.element_to_be_clickable((By.CSS_SELECTOR, '#paginationNextPageLink')))
     nextpage_button.click()
 
 
