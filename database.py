@@ -14,3 +14,6 @@ class Database(Base):
     title: Mapped[str] = mapped_column(String)
     price: Mapped[int] = mapped_column(Integer)
     url: Mapped[str] = mapped_column(String)
+
+
+Base.metadata.create_all(engine)

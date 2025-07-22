@@ -8,9 +8,6 @@ from sqlalchemy.orm import Session
 from database import Base, engine, Database
 
 
-db = Database()
-
-
 def create_driver():
     return webdriver.Firefox()
 
@@ -104,6 +101,8 @@ def get_url(driver):
     urls_list = [url.get_attribute("href") for url in urls]
     return urls_list
 
+# save offers to db
+
 
 def save_offers_to_db(offers_list, price_list, urls_list):
     with Session(engine) as session:
@@ -113,6 +112,8 @@ def save_offers_to_db(offers_list, price_list, urls_list):
         session.commit()
 
         print(f'offer:{offer}\nprice:{price}\nurl:{url}')
+
+# main func
 
 
 def main():
