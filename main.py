@@ -4,15 +4,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
-from sqlalchemy.orm import DeclarativeBase
-from database import Base, engine
+from sqlalchemy.orm import Session
+from database import Base, engine, Database
+
+
+db = Database()
 
 
 def create_driver():
     return webdriver.Firefox()
-
-
-db = DeclarativeBase()
 
 
 def accept_cookies(driver):
@@ -67,6 +67,7 @@ def apply_filters(driver):
             EC.element_to_be_clickable(
                 (By.XPATH, '//*[@id="searchFilters"]/div/div/div/button'))
         )
+
         apply_button.click()
     except TimeoutException:
         print("Apply button not found.")
@@ -104,8 +105,13 @@ def get_url(driver):
     return urls_list
 
 
-def show_offers(offers_list, price_list, urls_list):
-    for offer, price, url in zip(offers_list, price_list, urls_list):
+def save_offers_to_db(offers_list, price_list, urls_list):
+    with Session(engine) as session:
+        for offer, price, url in zip(offers_list, price_list, urls_list):
+            db = Database(title=offer, price=price, url=url)
+            session.add(db)
+        session.commit()
+
         print(f'offer:{offer}\nprice:{price}\nurl:{url}')
 
 
@@ -127,7 +133,8 @@ def main():
         driver.quit()
         return
     while True:
-        show_offers(take_offers(driver), take_price(driver), get_url(driver))
+        save_offers_to_db(take_offers(driver),
+                          take_price(driver), get_url(driver))
         if input("Next page? (y/n): ").lower() == 'y':
             go_to_next_page(driver)
             continue
