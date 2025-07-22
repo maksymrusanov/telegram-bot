@@ -4,10 +4,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from sqlalchemy.orm import DeclarativeBase
+from database import Base, engine
 
 
 def create_driver():
     return webdriver.Firefox()
+
+
+db = DeclarativeBase()
 
 
 def accept_cookies(driver):
@@ -101,7 +106,7 @@ def get_url(driver):
 
 def show_offers(offers_list, price_list, urls_list):
     for offer, price, url in zip(offers_list, price_list, urls_list):
-        print(f'offer:{offer}\nprice:{price}\nurl{url}')
+        print(f'offer:{offer}\nprice:{price}\nurl:{url}')
 
 
 def main():
