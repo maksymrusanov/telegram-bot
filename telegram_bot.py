@@ -9,9 +9,9 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 
 
-@bot.message_handler(commands=['s'])
-def send_welcome(message):
-    bot.reply_to(message, "hello,do you want to start bot?")
+@bot.message_handler(func=lambda message: True)
+def echo_message(message):
+    bot.reply_to(message, message.text)
 
 
 bot.infinity_polling()
