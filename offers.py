@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from sqlalchemy.orm import Session
 from database import Base, engine, Database
+import os
 
 
 def create_driver():
@@ -22,7 +23,8 @@ def accept_cookies(driver):
         print("Cookie button not found or already accepted.")
 
 
-def search_location(driver, location):
+def search_location(driver):
+    location = input('enter your location')
     try:
         search = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.NAME, 'search'))
@@ -35,12 +37,13 @@ def search_location(driver, location):
     return True
 
 
-def set_max_rent(driver, amount):
+def set_max_rent(driver):
+    max_rent = input('enter your max rent price: ')
     try:
         price = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, 'maxRent'))
         )
-        price.send_keys(str(amount))
+        price.send_keys(str(max_rent))
     except TimeoutException:
         print("Max rent field not found.")
         return False
@@ -108,12 +111,17 @@ def save_offers_to_db(offers_list, price_list, urls_list):
     with Session(engine) as session:
         for offer, price, url in zip(offers_list, price_list, urls_list):
             db = Database(title=offer, price=price, url=url)
+            print(f'offer:{offer}\nprice:{price}\nurl:{url}')
             session.add(db)
         session.commit()
 
-        print(f'offer:{offer}\nprice:{price}\nurl:{url}')
 
-# main func
+def delete_db_file(path="db.sqlite3"):
+    if os.path.exists(path):
+        os.remove(path)
+        print(f"{path} deleted.")
+    else:
+        print(f"file  '{path}' was not find")
 
 
 def main():
@@ -121,18 +129,10 @@ def main():
     driver.get('https://www.spareroom.co.uk/')
     accept_cookies(driver)
 
-    if not search_location(driver, 'london'):
-        driver.quit()
-        return
-    if not set_max_rent(driver, 600):
+    if not search_location(driver) or not set_max_rent(driver) or not apply_filters(driver):
         driver.quit()
         return
 
-    enable_bills_included(driver)
-
-    if not apply_filters(driver):
-        driver.quit()
-        return
     while True:
         save_offers_to_db(take_offers(driver),
                           take_price(driver), get_url(driver))
@@ -144,6 +144,8 @@ def main():
             break
 
     driver.quit()
+    if driver.quit:
+        delete_db_file()
 
 
 if __name__ == "__main__":
