@@ -1,10 +1,10 @@
-from states.user_states import BotForm
+from tg_bot.states import BotForm
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 import tg_bot.keyboards as kb
-import offers
+import parser
 router = Router()
 
 
@@ -23,6 +23,8 @@ async def enter_location(callback: CallbackQuery, state: FSMContext):
 @router.message(BotForm.location)
 async def process_location(message: Message, state: FSMContext):
     await state.update_data(location=message.text)
+    location = await state.get_data()
+    parser.search_location(driver, location=location['location'])
 
 
 @router.callback_query(F.data == 'budget')
@@ -35,5 +37,5 @@ async def enter_budget(callback: CallbackQuery, state: FSMContext):
 @router.message(BotForm.budget)
 async def process_budget(message: Message, state: FSMContext):
     await state.update_data(budget=message.text)
-    data = await state.get_data()
-    await message.answer(f"you entered location: {data['location']}\nBudget: {data['budget']}")
+    rent = await state.get_data()
+    parser.set_max_rent()

@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from sqlalchemy.orm import Session
-from database import Base, engine, Database
+from database.database import Base, engine, Database
 import os
 
 
@@ -23,8 +23,8 @@ def accept_cookies(driver):
         print("Cookie button not found or already accepted.")
 
 
-def search_location(driver):
-    location = input('enter your location')
+def search_location(driver, location):
+
     try:
         search = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.NAME, 'search'))
@@ -37,8 +37,7 @@ def search_location(driver):
     return True
 
 
-def set_max_rent(driver):
-    max_rent = input('enter your max rent price: ')
+def set_max_rent(driver, max_rent):
     try:
         price = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, 'maxRent'))
@@ -116,37 +115,9 @@ def save_offers_to_db(offers_list, price_list, urls_list):
         session.commit()
 
 
-def delete_db_file(path="db.sqlite3"):
+def delete_db_file(path="database/db.sqlite3"):
     if os.path.exists(path):
         os.remove(path)
         print(f"{path} deleted.")
     else:
         print(f"file  '{path}' was not find")
-
-
-def main():
-    driver = create_driver()
-    driver.get('https://www.spareroom.co.uk/')
-    accept_cookies(driver)
-
-    if not search_location(driver) or not set_max_rent(driver) or not apply_filters(driver):
-        driver.quit()
-        return
-
-    while True:
-        save_offers_to_db(take_offers(driver),
-                          take_price(driver), get_url(driver))
-        if input("Next page? (y/n): ").lower() == 'y':
-            go_to_next_page(driver)
-            continue
-        else:
-            driver.quit()
-            break
-
-    driver.quit()
-    if driver.quit:
-        delete_db_file()
-
-
-if __name__ == "__main__":
-    main()

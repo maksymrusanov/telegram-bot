@@ -1,10 +1,11 @@
+from tg_bot.handlers import router
 import aiogram
 import os
 import dotenv
 import logging
 import asyncio
 from aiogram import Bot, Dispatcher, html
-from tg_bot.handlers import router
+from tg_bot import handlers
 from dotenv import load_dotenv
 from pathlib import Path
 load_dotenv('/home/max/Documents/sr_parser/.env')
