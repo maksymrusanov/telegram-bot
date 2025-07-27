@@ -10,7 +10,10 @@ import os
 
 
 def create_driver():
-    return webdriver.Firefox()
+    driver = webdriver.Firefox()
+    driver.get('https://www.spareroom.co.uk/')
+    accept_cookies(driver)
+    return driver
 
 
 def accept_cookies(driver):
@@ -44,8 +47,12 @@ def set_max_rent(driver, max_rent):
         )
         price.send_keys(str(max_rent))
     except TimeoutException:
-        print("Max rent field not found.")
-        return False
+        try:
+            price = driver.find_element(By.ID, 'submitButton')
+            price.click()
+        except:
+            return False
+
     return True
 
 

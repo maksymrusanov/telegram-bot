@@ -1,12 +1,15 @@
 import parser_folder.parser as parser
 
 
-def main():
+def main(location, budget):
     driver = parser.create_driver()
-    driver.get('https://www.spareroom.co.uk/')
-    parser.accept_cookies(driver)
+    if not parser.search_location(driver, location) or not parser.set_max_rent(driver, budget) or not parser.apply_filters(driver):
+        driver.quit()
 
-    if not parser.search_location(driver, 'london') or not parser.set_max_rent(driver, '600') or not parser.apply_filters(driver):
+    offers = parser.take_offers(driver)
+    prices = parser.take_price(driver)
+    urls = parser.get_url(driver)
+    if not offers:
         driver.quit()
         return
 
@@ -19,10 +22,13 @@ def main():
         else:
             driver.quit()
             break
+        result = ""
+        for offer, price, url in zip(offers, prices, urls):
+            result += f"{offer}\n💷 {price}\n🔗 {url}\n\n"
+
+        return result[:4000]
 
     driver.quit()
-    if driver.quit:
-        parser.delete_db_file()
 
 
 if __name__ == '__main__':
