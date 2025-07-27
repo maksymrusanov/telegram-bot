@@ -1,4 +1,4 @@
-import parser
+import parser_folder.parser as parser
 
 
 def main():

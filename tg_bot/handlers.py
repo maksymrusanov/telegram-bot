@@ -4,7 +4,7 @@ from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 import tg_bot.keyboards as kb
-import parser
+import parser_folder.parser as parser
 router = Router()
 
 

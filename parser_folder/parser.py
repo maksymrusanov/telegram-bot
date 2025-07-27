@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from sqlalchemy.orm import Session
-from database.database import Base, engine, Database
+from parser_folder.db.database import Base, engine, Database
 import os
 
 
