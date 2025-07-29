@@ -56,17 +56,6 @@ def set_max_rent(driver, max_rent):
     return True
 
 
-def enable_bills_included(driver):
-    try:
-        bills = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.ID, 'billsIncluded'))
-        )
-        if not bills.is_selected():
-            bills.click()
-    except Exception as e:
-        print(f"Couldn't enable bills included: {e}")
-
-
 def apply_filters(driver):
     try:
         apply_button = WebDriverWait(driver, 10).until(
@@ -83,6 +72,7 @@ def apply_filters(driver):
 
 def go_to_next_page(driver):
     try:
+        accept_cookies(driver)
         next_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID, 'paginationNextPageLink'))
         )
@@ -96,21 +86,29 @@ def go_to_next_page(driver):
 def take_offers(driver):
     offers = driver.find_elements(By.CLASS_NAME, "listing-card__title")
     offers_list = [offer.text for offer in offers]
+    # print(offers_list)
     return offers_list
 
 
 def take_price(driver):
     prices = driver.find_elements(By.CLASS_NAME, "listing-card__price")
     price_list = [price.text for price in prices]
+    # print(price_list)
     return price_list
 
 
-def get_url(driver):
+def take_url(driver):
     urls = driver.find_elements(By.CLASS_NAME, 'listing-card__link')
     urls_list = [url.get_attribute("href") for url in urls]
+    # print(urls_list)
     return urls_list
 
 # save offers to db
+
+
+def save_offers(offers_list, price_list, urls_list):
+    for offer, price, url in zip(offers_list, price_list, urls_list):
+        return offer, price, url
 
 
 def save_offers_to_db(offers_list, price_list, urls_list):
@@ -122,7 +120,7 @@ def save_offers_to_db(offers_list, price_list, urls_list):
         session.commit()
 
 
-def delete_db_file(path="database/db.sqlite3"):
+def delete_db_file(path="parser_folder/db/db.sqlite3"):
     if os.path.exists(path):
         os.remove(path)
         print(f"{path} deleted.")

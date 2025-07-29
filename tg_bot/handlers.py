@@ -1,45 +1,77 @@
+from parser_folder.parse_session import ParserSession, user_sessions
 from tg_bot.states import BotForm
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 import tg_bot.keyboards as kb
-from parser_main import main
-from asyncio import to_thread
+import asyncio
+import sys
+import parser_folder.parser as parser
+from parser_folder.db_utils import get_rows
+
 router = Router()
 
 
 @router.message(CommandStart())
-async def start(message: Message):
-    await message.answer('Search:', reply_markup=kb.start)
-
-
-@router.callback_query(F.data == 'location')
-async def enter_location(callback: CallbackQuery, state: FSMContext):
+async def start(message: Message, state):
     await state.set_state(BotForm.location)
-    await callback.message.answer('Enter your location:')
-    await callback.answer()
+    await message.answer('enter your location')
 
 
 @router.message(BotForm.location)
-async def process_location(message: Message, state: FSMContext):
-    location = message.text
+async def enter_location(message: Message, state: FSMContext):
     await state.update_data(location=message.text)
-    location = await state.get_data()
-
-
-@router.callback_query(F.data == 'budget')
-async def enter_budget(callback: CallbackQuery, state: FSMContext):
     await state.set_state(BotForm.budget)
-    await callback.message.answer('Enter your budget:')
-    await callback.answer()
+    await message.answer('enter your budget')
 
 
 @router.message(BotForm.budget)
-async def process_budget(message: Message, state: FSMContext):
-    user_rent = message.text
+async def enter_budget(message: Message, state: FSMContext):
     await state.update_data(budget=message.text)
     data = await state.get_data()
-    location = data['location']
-    budget = data['budget']
-    main(location, budget)
+
+    user_id = message.from_user.id
+    session = ParserSession(data["location"], data["budget"])
+    user_sessions[user_id] = session
+
+    session.parse_page()
+    rows = get_rows()
+    for row in rows:
+        await message.answer(f"N{row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}", parse_mode="HTML")
+
+    await message.answer("choose your action", reply_markup=kb.nav_buttons)
+    await state.clear()
+
+
+@router.callback_query(F.data == "next")
+async def handle_next_page(callback: CallbackQuery):
+    user_id = callback.from_user.id
+    session = user_sessions.get(user_id)
+
+    if not session:
+        await callback.message.answer("Сессия не найдена.")
+        return
+
+    session.next_page()
+    rows = get_rows()
+    for row in rows:
+        await callback.message.answer(f"N{row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}", parse_mode="HTML")
+
+    await callback.message.answer("choose your action", reply_markup=kb.nav_buttons)
+    await callback.answer()
+
+
+@router.callback_query(F.data == 'finish')
+async def cmd_shutdown(callback: CallbackQuery):
+    user_id = callback.from_user.id
+
+    session = user_sessions.get(user_id)
+    if session:
+        session.close()
+        del user_sessions[user_id]
+
+    parser.delete_db_file()
+    await callback.message.answer('Bot stopped and DB deleted ')
+
+    await callback.answer()

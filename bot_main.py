@@ -8,6 +8,7 @@ from aiogram import Bot, Dispatcher, html
 from tg_bot import handlers
 from dotenv import load_dotenv
 from pathlib import Path
+from parser_folder.parser import delete_db_file
 load_dotenv('/home/max/Documents/sr_parser/.env')
 TOKEN = os.getenv('BOT_TOKEN')
 
@@ -15,7 +16,7 @@ dp = Dispatcher()
 bot = Bot(TOKEN)
 
 
-async def main():
+async def bot_main():
     # подключаем руты из app/handlers.py
     dp.include_router(router)
     # функция запуска бота в работу
@@ -25,4 +26,4 @@ async def main():
 if __name__ == '__main__':
     # включение логирования для отслежки логов при работе бота
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    asyncio.run(bot_main())
