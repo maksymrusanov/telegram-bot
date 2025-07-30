@@ -38,7 +38,7 @@ async def enter_budget(message: Message, state: FSMContext):
     session.parse_page()
     rows = get_rows()
     for row in rows:
-        await message.answer(f"N{row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}", parse_mode="HTML")
+        await message.answer(f"N {row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}", parse_mode="HTML")
 
     await message.answer("choose your action", reply_markup=kb.nav_buttons)
     await state.clear()
@@ -56,7 +56,7 @@ async def handle_next_page(callback: CallbackQuery):
     session.next_page()
     rows = get_rows()
     for row in rows:
-        await callback.message.answer(f"N{row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}", parse_mode="HTML")
+        await callback.message.answer(f"N {row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}", parse_mode="HTML")
 
     await callback.message.answer("choose your action", reply_markup=kb.nav_buttons)
     await callback.answer()
