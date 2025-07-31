@@ -1,8 +1,11 @@
+from pathlib import Path
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Integer
 from sqlalchemy import create_engine
-engine = create_engine(
-    "sqlite:///parser_folder/db/db.sqlite3", echo=True)
+
+BASE_DIR = Path(__file__).parent  # папка с этим файлом database.py
+DB_PATH = BASE_DIR / "db.sqlite3"
+engine = create_engine(f"sqlite:///{DB_PATH}", echo=True)
 
 
 class Base(DeclarativeBase):
