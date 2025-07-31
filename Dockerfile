@@ -23,6 +23,6 @@ COPY . /app
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python sr_parser/parser_folder/database.py
+RUN python parser_folder/db/database.py
 
 CMD ["python", "bot_main.py"]
