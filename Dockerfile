@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # Установка geckodriver вручную
-RUN GECKO_VERSION=v0.33.0 && \
+RUN GECKO_VERSION=v0.36.0 && \
     wget -q "https://github.com/mozilla/geckodriver/releases/download/$GECKO_VERSION/geckodriver-$GECKO_VERSION-linux64.tar.gz" && \
     tar -xzf "geckodriver-$GECKO_VERSION-linux64.tar.gz" && \
     mv geckodriver /usr/local/bin/ && \
