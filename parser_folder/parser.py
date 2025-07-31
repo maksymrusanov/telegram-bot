@@ -18,7 +18,9 @@ def create_driver():
     options.add_argument("--disable-dev-shm-usage")
 
     service = Service(log_path="/tmp/gecko.log")
-    return webdriver.Firefox(options=options, service=service)
+    driver = webdriver.Firefox(options=options, service=service)
+    driver.get('https://www.spareroom.co.uk/')
+    return driver
 
 
 def accept_cookies(driver):
@@ -44,7 +46,7 @@ def reg_form_spare_room(driver):
 def search_location(driver, location):
     try:
         search = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.NAME, 'search')))
+            EC.presence_of_element_located((By.ID, 'search_by_location_field')))
         search.send_keys(location)
         search.send_keys(Keys.ENTER)
     except TimeoutException:
