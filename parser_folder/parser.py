@@ -8,12 +8,19 @@ from sqlalchemy.orm import Session
 from parser_folder.db.database import Base, engine, Database
 import os
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 
 
 def create_driver():
     options = Options()
-    options.add_argument("--headless")  # если без GUI
-    return webdriver.Firefox(options=options)
+    options.add_argument("--headless")  # для серверов без GUI
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    # Включим логирование для диагностики
+    service = Service(log_path="/tmp/gecko.log")
+
+    return webdriver.Firefox(options=options, service=service)
 
 
 def accept_cookies(driver):
