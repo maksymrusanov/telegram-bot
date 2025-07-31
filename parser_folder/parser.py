@@ -12,20 +12,8 @@ from selenium.webdriver.firefox.options import Options
 
 def create_driver():
     options = Options()
-    options.headless = True
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.set_preference("general.useragent.override",
-                           "Mozilla/5.0 (Windows NT 5.0; Win64; x64) "
-                           "AppleWebKit/537.36 (KHTML, like Gecko) "
-                           "Chrome/112.0.0.0 Safari/537.36")
-    driver = webdriver.Firefox(options=options)
-    driver.get("https://www.spareroom.co.uk/")
-    WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.TAG_NAME, 'body'))
-    )
-    return driver
+    options.add_argument("--headless")  # если без GUI
+    return webdriver.Firefox(options=options)
 
 
 def accept_cookies(driver):
