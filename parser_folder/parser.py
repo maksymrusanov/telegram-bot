@@ -17,12 +17,12 @@ def create_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.set_preference("general.useragent.override",
-                           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                           "Mozilla/5.0 (Windows NT 5.0; Win64; x64) "
                            "AppleWebKit/537.36 (KHTML, like Gecko) "
                            "Chrome/112.0.0.0 Safari/537.36")
     driver = webdriver.Firefox(options=options)
     driver.get("https://www.spareroom.co.uk/")
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.TAG_NAME, 'body'))
     )
     return driver
@@ -30,7 +30,7 @@ def create_driver():
 
 def accept_cookies(driver):
     try:
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 5).until(
             EC.element_to_be_clickable(
                 (By.XPATH, "//button[contains(., 'Accept')]"))
         ).click()
@@ -50,7 +50,7 @@ def reg_form_spare_room(driver):
 
 def search_location(driver, location):
     try:
-        search = WebDriverWait(driver, 10).until(
+        search = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.NAME, 'search')))
         search.send_keys(location)
         search.send_keys(Keys.ENTER)
@@ -62,7 +62,7 @@ def search_location(driver, location):
 
 def set_max_rent(driver, max_rent):
     try:
-        price = WebDriverWait(driver, 10).until(
+        price = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.ID, 'maxRent')))
         price.send_keys(str(max_rent))
     except TimeoutException:
@@ -72,7 +72,7 @@ def set_max_rent(driver, max_rent):
 
 def apply_filters(driver):
     try:
-        apply_button = WebDriverWait(driver, 10).until(
+        apply_button = WebDriverWait(driver, 5).until(
             EC.element_to_be_clickable(
                 (By.XPATH, '//*[@id="searchFilters"]/div/div/div/button')))
 
@@ -86,7 +86,7 @@ def apply_filters(driver):
 def go_to_next_page(driver):
     try:
         accept_cookies(driver)
-        next_button = WebDriverWait(driver, 10).until(
+        next_button = WebDriverWait(driver, 5).until(
             EC.element_to_be_clickable((By.ID, 'paginationNextPageLink'))
         )
         next_button.click()
