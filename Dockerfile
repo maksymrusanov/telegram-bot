@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y \
     libxdamage1 libxfixes3 wget unzip && \
     rm -rf /var/lib/apt/lists/*
 
-# Установка geckodriver вручную
 RUN GECKO_VERSION=v0.36.0 && \
     wget -q "https://github.com/mozilla/geckodriver/releases/download/$GECKO_VERSION/geckodriver-$GECKO_VERSION-linux64.tar.gz" && \
     tar -xzf "geckodriver-$GECKO_VERSION-linux64.tar.gz" && \
@@ -19,9 +18,11 @@ RUN GECKO_VERSION=v0.36.0 && \
     rm "geckodriver-$GECKO_VERSION-linux64.tar.gz"
 
 WORKDIR /app
+
 COPY . /app
-RUN mkdir -p /app/parser_folder/db
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+RUN python sr_parser/parser_folder/db/database.py
 
 CMD ["python", "bot_main.py"]
