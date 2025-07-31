@@ -50,15 +50,23 @@ async def handle_next_page(callback: CallbackQuery):
     session = user_sessions.get(user_id)
 
     if not session:
-        await callback.message.answer("Сессия не найдена.")
+        await callback.message.answer("Session not found")
         return
 
     session.next_page()
-    rows = get_rows()
-    for row in rows:
-        await callback.message.answer(f"N {row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}", parse_mode="HTML")
+    rows = get_rows(page=session.page)
 
-    await callback.message.answer("choose your action", reply_markup=kb.nav_buttons)
+    if not rows:
+        await callback.message.answer("No more offers found.")
+        return
+
+    for row in rows:
+        await callback.message.answer(
+            f"N {row[0]}\n{row[1]}\nPrice:{row[2]} GBP\nUrl:{row[3]}",
+            parse_mode="HTML"
+        )
+
+    await callback.message.answer("Choose your action", reply_markup=kb.nav_buttons)
     await callback.answer()
 
 
@@ -70,7 +78,7 @@ async def cmd_shutdown(callback: CallbackQuery):
     if session:
         session.close()
         del user_sessions[user_id]
-
+    ParserSession.close
     parser.delete_db_file()
     await callback.message.answer('Bot stopped and DB deleted ')
 

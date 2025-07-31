@@ -7,12 +7,24 @@ from selenium.common.exceptions import TimeoutException
 from sqlalchemy.orm import Session
 from parser_folder.db.database import Base, engine, Database
 import os
+from selenium.webdriver.firefox.options import Options
 
 
 def create_driver():
-    driver = webdriver.Firefox()
-    driver.get('https://www.spareroom.co.uk/')
-    accept_cookies(driver)
+    options = Options()
+    options.headless = True
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.set_preference("general.useragent.override",
+                           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                           "AppleWebKit/537.36 (KHTML, like Gecko) "
+                           "Chrome/112.0.0.0 Safari/537.36")
+    driver = webdriver.Firefox(options=options)
+    driver.get("https://www.spareroom.co.uk/")
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.TAG_NAME, 'body'))
+    )
     return driver
 
 
@@ -26,12 +38,20 @@ def accept_cookies(driver):
         print("Cookie button not found or already accepted.")
 
 
-def search_location(driver, location):
+def reg_form_spare_room(driver):
+    try:
+        remind_button = WebDriverWait(driver, 5).until(
+            EC.element_to_be_clickable((By.ID, 'reg_remind_me_later'))
+        )
+        remind_button.click()
+    except TimeoutException:
+        print("Reg form not found or already handled.")
 
+
+def search_location(driver, location):
     try:
         search = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.NAME, 'search'))
-        )
+            EC.presence_of_element_located((By.NAME, 'search')))
         search.send_keys(location)
         search.send_keys(Keys.ENTER)
     except TimeoutException:
@@ -43,25 +63,18 @@ def search_location(driver, location):
 def set_max_rent(driver, max_rent):
     try:
         price = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, 'maxRent'))
-        )
+            EC.presence_of_element_located((By.ID, 'maxRent')))
         price.send_keys(str(max_rent))
     except TimeoutException:
-        try:
-            price = driver.find_element(By.ID, 'submitButton')
-            price.click()
-        except:
-            return False
-
-    return True
+        print("Max rent field not found.")
+        return False
 
 
 def apply_filters(driver):
     try:
         apply_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="searchFilters"]/div/div/div/button'))
-        )
+                (By.XPATH, '//*[@id="searchFilters"]/div/div/div/button')))
 
         apply_button.click()
     except TimeoutException:
@@ -103,21 +116,17 @@ def take_url(driver):
     # print(urls_list)
     return urls_list
 
-# save offers to db
-
-
-def save_offers(offers_list, price_list, urls_list):
-    for offer, price, url in zip(offers_list, price_list, urls_list):
-        return offer, price, url
+    # save offers to db
 
 
 def save_offers_to_db(offers_list, price_list, urls_list):
     with Session(engine) as session:
+
         for offer, price, url in zip(offers_list, price_list, urls_list):
             db = Database(title=offer, price=price, url=url)
-            print(f'offer:{offer}\nprice:{price}\nurl:{url}')
+            # print(f'offer:{offer}\nprice:{price}\nurl:{url}')
             session.add(db)
-        session.commit()
+            session.commit()
 
 
 def delete_db_file(path="parser_folder/db/db.sqlite3"):
