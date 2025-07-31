@@ -20,6 +20,7 @@ RUN GECKO_VERSION=v0.36.0 && \
 
 WORKDIR /app
 COPY . /app
+RUN mkdir -p /app/parser_folder/db
 
 RUN pip install --no-cache-dir -r requirements.txt
 
