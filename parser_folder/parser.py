@@ -13,7 +13,7 @@ from selenium.webdriver.firefox.service import Service
 
 def create_driver():
     options = Options()
-    options.add_argument("--headless")  # ОБЯЗАТЕЛЕН на Railway
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
